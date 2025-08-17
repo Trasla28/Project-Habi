@@ -1,0 +1,11 @@
+Puntos extras
+
+Que agregaria para mejorar la base de datos, solo agregarias esto
+
+CREATE INDEX idx_status_history_pid_ud ON status_history(property_id, update_date);
+CREATE INDEX idx_property_city ON property(city);
+
+El de status_history(property_id, update_date) ayuda porque siempre buscas el último estado por inmueble (el MAX(update_date) por property_id) y luego unes por esas dos columnas; 
+con ese índice MySQL va directo a lo que necesita sin escanear toda la tabla. El de property(city) sirve para que el filtro WHERE city = ? encuentre rápido solo las filas de esa ciudad y no todo el universo, 
+así se une y ordena mucho menos. Resultado: menos lecturas, menos CPU y respuestas más rápidas, sobre todo cuando crecen los datos. Único “pero”: ocupan algo de espacio y las escrituras son un pelín más costosas. 
+Tip: si filtras por año, usa un rango de fechas (>= 2024-01-01 AND < 2025-01-01) en vez de YEAR(update_date)=... para que el índice se aproveche de verdad.
